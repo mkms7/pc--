@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCシステム構造確認テスト</title>
+    <style>
+        /* ベース：黒背景・白文字のビジネス仕様 */
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background: #262626;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        #quiz-card {
+            background: #262626;
+            width: 95%;
+            max-width: 900px;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            display: none; 
+            overflow: hidden;
+            min-height: 550px;
+        }
+
+        /* 左側の情報パネル（視認性の高い濃いネイビー） */
+        .info-panel {
+            background-color: #1c2833;
+            padding: 40px 30px;
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #333;
+        }
+
+        .info-panel h2 { 
+            color: #ffffff; 
+            font-size: 1.1em;
+            border-bottom: 1px solid #555; 
+            padding-bottom: 10px;
+            margin-top: 0;
+            letter-spacing: 1px;
+        }
+        .status-item { margin-bottom: 30px; text-align: left; }
+        .label { font-size: 0.7em; color: #888; font-weight: bold; }
+        .value { font-size: 1.8em; color: #ffffff; font-weight: bold; }
+
+        /* 右側のメインパネル */
+        .quiz-panel { padding: 40px 50px; width: 70%; position: relative; }
+        .question-text { font-size: 1.25em; font-weight: bold; line-height: 1.6; margin-bottom: 30px; min-height: 110px; }
+        .options { display: grid; gap: 12px; }
+
+        /* 制限時間バー */
+        .timer-container { width: 100%; height: 4px; background: #444; margin-bottom: 25px; border-radius: 2px; overflow: hidden; }
+        #timer-bar { width: 100%; height: 100%; background: #3498db; transition: width 0.1s linear; }
+
+        /* ボタンデザイン（装飾なし） */
+        .btn {
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 14px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            color: #e0e0e0;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+        }
+        .btn:hover { background-color: #444; border-color: #666; }
+        .btn-primary { 
+            background: #e0e0e0; 
+            color: #1a1a1a; 
+            border: none; 
+            text-align: center;
+            font-weight: bold;
+        }
+        .btn-primary:hover { background: #ffffff; }
+
+        input[type="password"] {
+            padding: 12px;
+            font-size: 1.1em;
+            background: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            #quiz-card { flex-direction: column; overflow-y: auto; }
+            .info-panel { width: 100%; border-right: none; border-bottom: 1px solid #333; padding: 20px; }
+            .quiz-panel { width: 100%; padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="login-screen" class="container">
+    <h2 style="margin-bottom:10px;">Security Check</h2>
+    <p style="font-size: 0.85em; color: #888; margin-bottom: 20px;">パスワードを入力してください</p>
+    <input type="password" id="pass-input" maxlength="4">
+    <button class="btn btn-primary" onclick="checkPassword()">認証</button>
+</div>
+
+<div id="menu-screen" class="container" style="display:none;">
+    <h2 style="font-size: 1.1em; margin-bottom: 25px;">難易度を選択してください</h2>
+    <button class="btn" onclick="startQuiz('初歩')">初歩</button>
+    <button class="btn" onclick="notReady()">基礎</button>
+    <button class="btn" onclick="notReady()">標準</button>
+</div>
+
+<div id="quiz-card">
+    <div class="info-panel">
+        <h2 id="level-title">SYSTEM ASSESSMENT</h2>
+        <div class="status-item"><div class="label">PROGRESS</div><div class="value" id="progress">0 / 20</div></div>
+        <div class="status-item"><div class="label">SCORE</div><div class="value" id="score-val">0</div></div>
+        <div class="status-item"><div class="label">MISS</div><div class="value" id="wrong-count">0</div></div>
+    </div>
+    <div class="quiz-panel" id="main-content">
+        <div class="timer-container"><div id="timer-bar"></div></div>
+        <div class="question-text" id="question">Loading...</div>
+        <div id="options" class="options"></div>
+    </div>
+</div>
+
+<script>
+    const CORRECT_PASSWORD = "0132";
+    let timerInterval;
+    let timeLeft;
+    const TIME_LIMIT = 15;
+
+    function checkPassword() {
+        if (document.getElementById("pass-input").value === CORRECT_PASSWORD) {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("menu-screen").style.display = "block";
+        } else {
+            alert("パスワードが正しくありません。");
+        }
+    }
+
+    function notReady() { alert("作成中"); }
+
+    const questions = [
+        { q: "PCの司令塔として、プログラムの命令を解釈し計算や制御を行う主要なパーツは？", a: ["SSD", "CPU", "メモリ", "GPU"], c: 1 },
+        { q: "Copilot+ PCに搭載される、AI処理をデバイス内で完結させるための専用プロセッサは？", a: ["VPU", "APU", "NPU", "MPU"], c: 2 },
+        { q: "電源を切るとデータが消去される、データの一時的な作業領域を何と呼ぶ？", a: ["HDD", "キャッシュ", "ストレージ", "メモリ（RAM）"], c: 3 },
+        { q: "データを長期保存する装置で、HDDに代わり主流となった高速な記憶装置は？", a: ["SSD", "BIOS", "DRAM", "VRAM"], c: 0 },
+        { q: "3Dグラフィックスや動画の描画、並列計算を専門に行うプロセッサは？", a: ["CPU", "GPU", "NPU", "DSP"], c: 1 },
+        { q: "各パーツを接続し、通信の通り道となるPC内部の主要な基盤は？", a: ["拡張カード", "インターフェース", "マザーボード", "電源ユニット"], c: 2 },
+        { q: "コンセントからの交流電流を、PC内部用の直流電流に変換し各部に供給する部品は？", a: ["インバーター", "電源ユニット", "コンデンサ", "バッテリー"], c: 1 },
+        { q: "AI性能を示す「TOPS」という単位は、1秒間に実行可能な何の回数を示す指標か？", a: ["データの転送回数", "電気信号の周期", "数兆回の演算", "画像の描写回数"], c: 2 },
+        { q: "PC内部でCPUやメモリなどの各装置間でデータをやり取りするための伝送路を何と呼ぶ？", a: ["ゲート", "バス（Bus）", "ポート", "スロット"], c: 1 },
+        { q: "USBやHDMIなど、PCと周辺機器を物理的に接続するための規格の総称は？", a: ["ネットワーク", "ドライバ", "インターフェース", "ソケット"], c: 2 },
+        { q: "ハードウェアを制御し、アプリケーションが動作する基盤となる基本ソフト（Windows等）は？", a: ["OS", "BIOS", "ユーティリティ", "ミドルウェア"], c: 0 },
+        { q: "OSが、プリンタやマウスなどの接続されたハードウェアを制御するために必要な専用ソフトは？", a: ["ファームウェア", "デバイスドライバ", "API", "インストーラー"], c: 1 },
+        { q: "PC起動時に最初に動作し、ハードウェアの初期設定と起動順序を管理するプログラムは？", a: ["UEFI (BIOS)", "カーネル", "レジストリ", "シェル"], c: 0 },
+        { q: "コンピュータが扱うデータの最小単位（0または1の状態）を何と呼ぶ？", a: ["バイト", "ビット", "ワード", "ピクセル"], c: 1 },
+        { q: "OSの中核となる部分で、メモリ管理やCPUのプロセス割り当てを直接担当する部分は？", a: ["アプリケーション", "ドライバ", "カーネル", "システムフォルダ"], c: 2 },
+        { q: "ストレージ内で、データをファイルとして適切に管理・整理するための仕組みを何と呼ぶ？", a: ["データベース", "ファイルシステム", "アーカイブ", "インデックス"], c: 1 },
+        { q: "複数のアプリケーションを同時に、または切り替えながら並行して実行できる機能を何と呼ぶ？", a: ["マルチメディア", "マルチタスク", "マルチキャスト", "マルチブート"], c: 1 },
+        { q: "CPUとメインメモリの速度差を埋めるために、CPU内部に配置される非常に高速な記憶域は？", a: ["仮想メモリ", "キャッシュメモリ", "VRAM", "ページファイル"], c: 1 },
+        { q: "ハードウェア内部にあらかじめ書き込まれた、基本的な動作を制御するためのソフトは？", a: ["シェアウェア", "ミドルウェア", "ファームウェア", "プラグイン"], c: 2 },
+        { q: "物理メモリが不足した際、ストレージの一部を作業領域として代用する仕組みは？", a: ["クラウドストレージ", "キャッシュ", "仮想メモリ", "バッファ"], c: 2 }
+    ];
+
+    let current = 0; let score = 0; let miss = 0;
+
+    function startQuiz(lv) {
+        document.getElementById("menu-screen").style.display = "none";
+        document.getElementById("quiz-card").style.display = "flex";
+        document.getElementById("level-title").innerText = lv;
+        display();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = TIME_LIMIT;
+        timerInterval = setInterval(() => {
+            timeLeft -= 0.1;
+            document.getElementById("timer-bar").style.width = (timeLeft / TIME_LIMIT) * 100 + "%";
+            if (timeLeft <= 0) { clearInterval(timerInterval); answer(-1); }
+        }, 100);
+    }
+
+    function display() {
+        if (current >= questions.length) { showResult(); return; }
+        document.getElementById("progress").innerText = `${current + 1} / ${questions.length}`;
+        document.getElementById("question").innerText = questions[current].q;
+        const opts = document.getElementById("options");
+        opts.innerHTML = "";
+        questions[current].a.forEach((choice, i) => {
+            const b = document.createElement("button");
+            b.className = "btn"; b.innerText = choice;
+            b.onclick = () => answer(i);
+            opts.appendChild(b);
+        });
+        startTimer();
+    }
+
+    function answer(idx) {
+        clearInterval(timerInterval);
+        if (idx === questions[current].c) { score += 5; } else { miss++; }
+        document.getElementById("score-val").innerText = score;
+        document.getElementById("wrong-count").innerText = miss;
+        current++;
+        setTimeout(display, 300);
+    }
+
+    function showResult() {
+        const main = document.getElementById("main-content");
+        main.innerHTML = `<h2>テスト完了</h2><p style="font-size: 1.5em; margin: 20px 0;">最終スコア: ${score} 点</p><p style="color:#888;">正解数: ${score/5} / 20</p><button class="btn btn-primary" style="margin-top:30px;" onclick="location.reload()">メニューに戻る</button>`;
+    }
+</script>
+</body>
+</html>
