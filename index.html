@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCシステム構造確認テスト</title>
+    <title>PCシステム学習：Master Edition</title>
     <style>
-        /* ベース：黒背景・白文字のビジネス仕様 */
+        :root {
+            --bg-color: #0f172a; 
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --text-color: #f1f5f9;
+            --info-panel-bg: #0c1322; /* 視認性の高い濃いネイビー */
+            --correct-color: #4ade80;
+            --wrong-color: #f87171;
+        }
+
         body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
-            background-color: #1a1a1a;
-            color: #e0e0e0;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             display: flex;
             justify-content: center;
@@ -18,218 +27,217 @@
             overflow: hidden;
         }
 
-        .container {
-            background: #262626;
-            padding: 40px;
-            border-radius: 4px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
+        .container { width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; }
+
+        /* --- ホーム画面 --- */
+        #home-screen { text-align: center; animation: fadeIn 0.8s ease-out; }
+        .circle-test-btn {
+            width: 240px; height: 240px; border-radius: 50%;
+            background: transparent; border: 4px solid var(--accent-color);
+            color: var(--accent-color); font-size: 1.8rem; font-weight: bold;
+            cursor: pointer; transition: 0.4s; box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            margin: 15px;
         }
+        .circle-test-btn:hover { background: var(--accent-color); color: var(--bg-color); transform: scale(1.05); }
 
-        #quiz-card {
-            background: #262626;
-            width: 95%;
-            max-width: 900px;
-            border-radius: 4px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            display: none; 
-            overflow: hidden;
-            min-height: 550px;
+        /* --- メインパネル --- */
+        .app-card {
+            display: none; background: var(--card-bg); width: 95%; max-width: 1100px;
+            border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            overflow: hidden; min-height: 650px; animation: fadeIn 0.4s;
         }
+        .active-card { display: flex !important; }
 
-        /* 左側の情報パネル（視認性の高い濃いネイビー） */
-        .info-panel {
-            background-color: #1c2833;
-            padding: 40px 30px;
-            width: 30%;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid #333;
-        }
+        .info-panel { background: var(--info-panel-bg); padding: 40px 30px; width: 28%; border-right: 1px solid rgba(255,255,255,0.1); }
+        .content-panel { padding: 40px; width: 72%; overflow-y: auto; }
 
-        .info-panel h2 { 
-            color: #ffffff; 
-            font-size: 1.1em;
-            border-bottom: 1px solid #555; 
-            padding-bottom: 10px;
-            margin-top: 0;
-            letter-spacing: 1px;
-        }
-        .status-item { margin-bottom: 30px; text-align: left; }
-        .label { font-size: 0.7em; color: #888; font-weight: bold; }
-        .value { font-size: 1.8em; color: #ffffff; font-weight: bold; }
+        .label { font-size: 0.7rem; color: #94a3b8; font-weight: bold; letter-spacing: 1px; }
+        .value { font-size: 1.8rem; color: #fff; font-weight: bold; margin-bottom: 25px; }
 
-        /* 右側のメインパネル */
-        .quiz-panel { padding: 40px 50px; width: 70%; position: relative; }
-        .question-text { font-size: 1.25em; font-weight: bold; line-height: 1.6; margin-bottom: 30px; min-height: 110px; }
-        .options { display: grid; gap: 12px; }
-
-        /* 制限時間バー */
-        .timer-container { width: 100%; height: 4px; background: #444; margin-bottom: 25px; border-radius: 2px; overflow: hidden; }
-        #timer-bar { width: 100%; height: 100%; background: #3498db; transition: width 0.1s linear; }
-
-        /* ボタンデザイン（装飾なし） */
+        .question-text { font-size: 1.25rem; font-weight: bold; line-height: 1.6; margin-bottom: 30px; }
+        .options-grid { display: grid; gap: 12px; }
         .btn {
-            background-color: #333;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 14px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            color: #e0e0e0;
-            transition: all 0.2s;
-            text-align: left;
-            width: 100%;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            padding: 18px; border-radius: 10px; color: #e2e8f0; text-align: left; cursor: pointer; font-size: 1rem;
         }
-        .btn:hover { background-color: #444; border-color: #666; }
-        .btn-primary { 
-            background: #e0e0e0; 
-            color: #1a1a1a; 
-            border: none; 
-            text-align: center;
-            font-weight: bold;
-        }
-        .btn-primary:hover { background: #ffffff; }
+        .btn:hover { border-color: var(--accent-color); background: rgba(56, 189, 248, 0.1); }
 
-        input[type="password"] {
-            padding: 12px;
-            font-size: 1.1em;
-            background: #333;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            #quiz-card { flex-direction: column; overflow-y: auto; }
-            .info-panel { width: 100%; border-right: none; border-bottom: 1px solid #333; padding: 20px; }
-            .quiz-panel { width: 100%; padding: 30px; }
-        }
+        .exp-box { background: var(--info-panel-bg); padding: 25px; border-left: 5px solid var(--accent-color); margin-top: 25px; border-radius: 4px; line-height: 1.7; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="login-screen" class="container">
-    <h2 style="margin-bottom:10px;">Security Check</h2>
-    <p style="font-size: 0.85em; color: #888; margin-bottom: 20px;">パスワードを入力してください</p>
-    <input type="password" id="pass-input" maxlength="4">
-    <button class="btn btn-primary" onclick="checkPassword()">認証</button>
-</div>
-
-<div id="menu-screen" class="container" style="display:none;">
-    <h2 style="font-size: 1.1em; margin-bottom: 25px;">難易度を選択してください</h2>
-    <button class="btn" onclick="startQuiz('初歩')">初歩</button>
-    <button class="btn" onclick="notReady()">基礎</button>
-    <button class="btn" onclick="notReady()">標準</button>
-</div>
-
-<div id="quiz-card">
-    <div class="info-panel">
-        <h2 id="level-title">SYSTEM ASSESSMENT</h2>
-        <div class="status-item"><div class="label">PROGRESS</div><div class="value" id="progress">0 / 20</div></div>
-        <div class="status-item"><div class="label">SCORE</div><div class="value" id="score-val">0</div></div>
-        <div class="status-item"><div class="label">MISS</div><div class="value" id="wrong-count">0</div></div>
+<div class="container">
+    <div id="home-screen">
+        <h1 style="margin-bottom: 30px; letter-spacing: 2px;">SYSTEM ASSESSMENT</h1>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+            <button class="circle-test-btn" onclick="startTest('初歩')">初歩<br><span style="font-size:0.9rem;">(10問)</span></button>
+            <button class="circle-test-btn" onclick="startTest('基礎')">基礎<br><span style="font-size:0.9rem;">(10問)</span></button>
+            <button class="circle-test-btn" onclick="startTest('標準')" style="border-color:#f472b6; color:#f472b6;">標準<br><span style="font-size:0.9rem;">(40問)</span></button>
+        </div>
     </div>
-    <div class="quiz-panel" id="main-content">
-        <div class="timer-container"><div id="timer-bar"></div></div>
-        <div class="question-text" id="question">Loading...</div>
-        <div id="options" class="options"></div>
+
+    <div id="test-card" class="app-card">
+        <div class="info-panel">
+            <h2 id="mode-title" style="color:var(--accent-color); margin-top:0;">MODE</h2>
+            <div class="label">PROGRESS</div><div class="value" id="progress">0 / 0</div>
+            <div class="label">SCORE</div><div class="value" id="score-val">0</div>
+            <div class="label">MISS</div><div class="value" id="miss-val">0</div>
+            <button class="btn" style="width:100%; margin-top:40px; text-align:center; background:#334155;" onclick="location.reload()">メニューに戻る</button>
+        </div>
+        <div class="content-panel">
+            <div id="quiz-area">
+                <div class="question-text" id="question"></div>
+                <div id="options" class="options-grid"></div>
+            </div>
+            <div id="feedback-area" style="display:none;">
+                <h2 id="feedback-title" style="font-size: 2.2rem; margin-top:0;"></h2>
+                <div class="exp-box" id="explanation-text"></div>
+                <button class="btn" style="margin-top:30px; width:100%; text-align:center; background:var(--accent-color); color:black; font-weight:bold;" onclick="toNext()">次の問題へ</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    const CORRECT_PASSWORD = "0132";
-    let timerInterval;
-    let timeLeft;
-    const TIME_LIMIT = 15;
+const QUESTIONS = {
+    '初歩': [
+        { q: "PCの計算処理を行い『脳』に例えられるパーツは？", a: ["SSD", "CPU", "メモリ", "電源"], c: 1, exp: "CPU（中央演算処理装置）が全ての計算を担当します。" },
+        { q: "Intel（インテル）の代表的なCPUシリーズは？", a: ["Ryzen", "Core i", "Radeon", "GeForce"], c: 1, exp: "Core i3/i5/i7などが最も一般的です。" },
+        { q: "AMD社のCPUブランド名は？", a: ["Core", "Ryzen", "Snapdragon", "Xeon"], c: 1, exp: "Ryzen（ライゼン）はコストパフォーマンスに優れた人気ブランドです。" },
+        { q: "データの読み書きが非常に速い現代の主流ストレージは？", a: ["HDD", "SSD", "CD-ROM", "フロッピー"], c: 1, exp: "SSDは物理的な回転部がないため、HDDより圧倒的に高速です。" },
+        { q: "文書作成に特化したMicrosoft Officeのソフトは？", a: ["Excel", "Word", "Outlook", "PowerPoint"], c: 1, exp: "Wordは報告書や手紙などの作成に最適です。" },
+        { q: "表計算やグラフ作成を行うソフトは？", a: ["Word", "Excel", "Access", "OneNote"], c: 1, exp: "Excelは数値計算やデータ管理の定番ソフトです。" },
+        { q: "プレゼン資料（スライド）を作るソフトは？", a: ["Excel", "Word", "PowerPoint", "Publisher"], c: 2, exp: "PowerPointでスライドショー形式の資料を作成します。" },
+        { q: "メールや予定を管理するOfficeソフトは？", a: ["Outlook", "Word", "Teams", "OneDrive"], c: 0, exp: "Outlookはビジネスにおけるコミュニケーションの基盤です。" },
+        { q: "データの一時的な作業場所で、電源を切ると消えるパーツは？", a: ["HDD", "メモリ", "CPU", "BIOS"], c: 1, exp: "メモリは作業中のデータを置く『机』のような役割です。" },
+        { q: "月額・年額で常に最新のOfficeが使えるサービスは？", a: ["Office 2021", "Microsoft 365", "Windows 11", "Office Home"], c: 1, exp: "Microsoft 365はサブスクリプション型のサービスです。" }
+    ],
+    '基礎': [
+        { q: "堅牢性が高く、ビジネスマンに人気の『ThinkPad』はどこのメーカー？", a: ["HP", "Dell", "Lenovo", "Apple"], c: 2, exp: "Lenovoが展開する、キーボードの赤ポチが特徴的なブランドです。" },
+        { q: "国内メーカー（NECや富士通）の主な強みは？", a: ["価格の安さ", "初心者向けサポートの充実", "ゲーム性能", "OS未搭載"], c: 1, exp: "国内大手は電話サポートや独自の便利ソフトが充実しています。" },
+        { q: "受注生産でパーツをカスタマイズできる販売形態を何と呼ぶ？", a: ["OEM", "BTO", "ASP", "Retail"], c: 1, exp: "BTO (Build To Order) は自分好みのスペックに調整して注文できます。" },
+        { q: "最新の『Copilot+ PC』規格で、NPUに求められる性能は？", a: ["10 TOPS以上", "20 TOPS以上", "40 TOPS以上", "100 TOPS以上"], c: 2, exp: "40 TOPS以上のAI演算性能がCopilot+ PCの認定条件です。" },
+        { q: "Copilot+ PCで必須とされるメモリの最低容量は？", a: ["8GB", "16GB", "32GB", "64GB"], c: 1, exp: "AIを動かすために、最低16GBのメモリが必須とされています。" },
+        { q: "Microsoft自らが開発・販売しているPCブランド名は？", a: ["Inspiron", "Surface", "Vostro", "Pavilion"], c: 1, exp: "SurfaceシリーズはWindowsに最適化されたハードウェアです。" },
+        { q: "頑丈さで有名なPanasonicのビジネスPCブランドは？", a: ["VAIO", "DynaBook", "Let's note", "LAVIE"], c: 2, exp: "レッツノートは軽量かつ衝撃に強い設計で根強い人気があります。" },
+        { q: "Apple独自のOSを搭載したPCを何と呼ぶ？", a: ["Windows PC", "Linux PC", "Mac", "Chromebook"], c: 2, exp: "Mac (Macintosh) はApple独自のmacOSで動作します。" },
+        { q: "『2in1 PC』の主な特徴は？", a: ["画面が2つある", "タブレットとノートPCを1台で兼ねる", "マウスが不要", "2台セット販売"], c: 1, exp: "画面が回転したり分離したりする多機能なPCです。" },
+        { q: "モニターの『リフレッシュレート(Hz)』が表すのは？", a: ["色の鮮やかさ", "1秒間に画面を書き換える回数", "消費電力", "画面の解像度"], c: 1, exp: "数値が高いほど、映像の動きが滑らかに見えます。" }
+    ],
+    '標準': [
+        /* 標準 40問（構造深掘り） */
+        { q: "M.2 SSDの『2280』という数字、80が表すのは？", a: ["厚さ 8.0mm", "長さ 80mm", "速度 80Gbps", "容量 80GB"], c: 1, exp: "M.2のサイズ規格で、幅22mm・長さ80mmを指します。" },
+        { q: "CPUの『TDP』は何を示す指標？", a: ["最大消費電力", "熱設計電力（冷却の目安）", "動作温度の限界", "データ転送速度"], c: 1, exp: "設計上、どれくらいの熱を逃がす必要があるかを示す数値です。" },
+        { q: "PCI Express 4.0は3.0に比べて帯域幅はどうなった？", a: ["1.5倍", "2倍", "4倍", "変わらない"], c: 1, exp: "PCIeは世代が上がるごとに帯域幅（速度）が2倍になります。" },
+        { q: "ノートPC用メモリの規格名称は？", a: ["DIMM", "SO-DIMM", "VRAM", "SRAM"], c: 1, exp: "Small Outline DIMMの略で、小型化されたメモリ規格です。" },
+        { q: "CPU内部にある、メインメモリより高速な記憶域は？", a: ["レジスタ", "キャッシュメモリ", "仮想メモリ", "SSD"], c: 1, exp: "L1/L2/L3キャッシュが速度差を埋める役割をします。" },
+        { q: "メモリを2枚1組で使い、帯域を広げる技術は？", a: ["オーバークロック", "デュアルチャネル", "ミラーリング", "ストライピング"], c: 1, exp: "同じ規格を2枚刺すことでデータ転送速度を向上させます。" },
+        { q: "NVMe SSDがSATA SSDより速い物理的理由は？", a: ["回転数が高い", "PCI Express接続を利用するから", "電力が高い", "ケーブルが太い"], c: 1, exp: "高速なPCIeバスを直接利用するため、SATAの限界を超えられます。" },
+        { q: "『スロットリング』とはどのような現象？", a: ["通信が切れる", "熱による故障を防ぐため性能を下げる", "画面が固まる", "自動的に再起動する"], c: 1, exp: "過熱を防ぐためにクロック周波数を落とす保護機能です。" },
+        { q: "電源ユニットの『80 PLUS』認証は何の指標？", a: ["出力の安定性", "電力変換効率", "静音性", "耐用年数"], c: 1, exp: "交流を直流に変える際のロスが少ないことを証明する基準です。" },
+        { q: "UEFI (旧BIOS) の主な役割は？", a: ["OSの実行", "ハードウェアの初期化とOSの起動準備", "ウイルス駆除", "ファイル管理"], c: 1, exp: "電源を入れた直後に動作し、システム全体を立ち上げます。" },
+        { q: "CPUの『コア』と『スレッド』、論理的な作業単位は？", a: ["コア", "スレッド", "キャッシュ", "バス"], c: 1, exp: "1コアで2スレッド処理するなど、論理的な同時処理数をスレッドと言います。" },
+        { q: "VRAM（ビデオメモリ）が主に搭載されている場所は？", a: ["マザーボード", "CPU内部", "グラフィックボード(GPU)", "SSD"], c: 2, exp: "映像描写に必要なデータを保持するための専用メモリです。" },
+        { q: "RAID 0（ストライピング）の主な目的は？", a: ["データの保護", "読み書き速度の向上", "省電力化", "バックアップ"], c: 1, exp: "複数ディスクに分散して書くため速いですが、1台壊れると全滅します。" },
+        { q: "オーバークロックで最もリスクとなる要素は？", a: ["ストレージの消耗", "過熱によるパーツの劣化・故障", "OSの不具合", "電気料金の低下"], c: 1, exp: "定格以上の負荷をかけるため、冷却が非常に重要になります。" },
+        { q: "CMOS電池が切れるとどうなる？", a: ["PCが起動しなくなる", "時計やBIOS設定が初期化される", "ネットが繋がらなくなる", "画面が映らなくなる"], c: 1, exp: "設定情報を保持するための電力が失われるためです。" },
+        { q: "HDMIとDisplayPort、PC特有の多画面接続に強いのは？", a: ["HDMI", "DisplayPort", "VGA", "DVI"], c: 1, exp: "DisplayPortは数珠繋ぎ（デイジーチェーン）などの拡張機能に優れます。" },
+        { q: "AI処理特有の行列演算を効率化するプロセッサは？", a: ["CPU", "GPU", "NPU", "MPU"], c: 2, exp: "NPUは深層学習などのAI処理に特化した専用回路です。" },
+        { q: "マザーボードの『VRM』は何を管理する回路？", a: ["ビデオ表示", "CPUへの電圧供給の安定化", "音質の向上", "ネットワーク"], c: 1, exp: "電源からの電気をCPUが求める正確な電圧に変換します。" },
+        { q: "SSDの『TBW』が示すものは？", a: ["最大転送速度", "総書き込み保証容量（寿命）", "動作温度範囲", "キャッシュ容量"], c: 1, exp: "どれだけデータを書き込んだら寿命になるかの目安です。" },
+        { q: "『チップセット』が搭載されているパーツは？", a: ["CPU", "マザーボード", "メモリ", "GPU"], c: 1, exp: "各パーツ間の通信を制御するハブのような存在です。" },
+        { q: "CL（レイテンシ）という数値は何の性能に関わる？", a: ["CPUの熱", "メモリの応答速度", "SSDの容量", "電源の音"], c: 1, exp: "数値が低いほど、メモリが指示を受けてから動くまでの時間が短いです。" },
+        { q: "『ヒートパイプ』の仕組みに使われているのは？", a: ["固形保冷剤", "液体の蒸発と凝縮による熱移動", "送風ファン", "電動冷却器"], c: 1, exp: "内部の液体が熱を運ぶ効率的な冷却システムです。" },
+        { q: "ノートPCの『PD (Power Delivery)』とは？", a: ["高速データ通信", "USB-Cケーブルでの急速充電・給電", "画面の無線送信", "自動スリープ"], c: 1, exp: "1本のケーブルでPCの充電と周辺機器の接続が可能です。" },
+        { q: "『シングルコア性能』が特に重要となる用途は？", a: ["動画の書き出し", "古いゲームやオフィスソフトの動作速度", "大量のファイル圧縮", "サーバー運用"], c: 1, exp: "並列処理に対応していないソフトでは、1つのコアの速さが鍵となります。" },
+        { q: "マザーボードの『ATX』や『Micro-ATX』が表すのは？", a: ["通信速度", "基板のサイズ規格", "対応するOS", "USBポートの数"], c: 1, exp: "ケースに入るかどうかに直結するフォームファクタ（形状）の規格です。" },
+        { q: "PCの『エアフロー』を考える上で最も重要なのは？", a: ["ファンの色", "吸気と排気の流れを遮らないこと", "ケースの重さ", "配線の長さ"], c: 1, exp: "冷たい空気を入れ、熱い空気を逃がす循環がパーツを守ります。" },
+        { q: "『仮想メモリ』とはどこの領域を使う技術？", a: ["CPUキャッシュ", "ストレージ（SSD/HDD）", "クラウド", "GPUメモリ"], c: 1, exp: "物理メモリが足りない時、ストレージの一部をメモリとして使います。" },
+        { q: "『ボトルネック』が発生している状態とは？", a: ["全てのパーツが最高速", "一部の低性能パーツが全体の足を引っ張ること", "通信が安定している", "電源が入らない"], c: 1, exp: "高性能CPUに低性能なGPUを合わせるなど、バランスが悪い状態です。" },
+        { q: "『クロック周波数 (GHz)』が意味するのは？", a: ["メモリの容量", "1秒間に処理の合図を出す回数", "消費電力の合計", "ネットの通信量"], c: 1, exp: "PCの動作のテンポ。高いほど同じ時間で多くの命令をこなせます。" },
+        { q: "SSDの『SLC』や『TLC』。1セルあたりの保存データ量が多いのは？", a: ["SLC", "MLC", "TLC", "QLC"], c: 3, exp: "QLCが最も多いですが、その分寿命や書き込み速度は低下する傾向にあります。" },
+        { q: "グラフィックボードの『DLSS』や『FSR』は何のための技術？", a: ["画質を落とさずフレームレートを上げる", "色を鮮やかにする", "音質を良くする", "ネットを速くする"], c: 0, exp: "AI等を使って解像度を補完し、ゲームの動作を軽くする技術です。" },
+        { q: "マザーボードの『バックパネル』とはどこのこと？", a: ["PC前面のボタン", "PC背面の端子類が並ぶ部分", "基板の裏面", "CPUの下"], c: 1, exp: "USBやLAN端子を接続する背面のインターフェース部分です。" },
+        { q: "『グリス』をCPUとヒートシンクの間に塗る理由は？", a: ["接着するため", "微細な隙間を埋めて熱伝導を良くするため", "錆びを防ぐため", "絶縁するため"], c: 1, exp: "空気の層をなくし、熱を効率よく冷却器へ伝えるためです。" },
+        { q: "『ベアボーンPC』とはどのような製品？", a: ["ケースのみの製品", "CPU・マザーボード・電源のみの半完成品", "OS付きの完成品", "中古PC"], c: 1, exp: "メモリやSSDを自分で選んで追加するタイプのPCです。" },
+        { q: "USB 3.2 Gen 2の最大転送速度は？", a: ["480Mbps", "5Gbps", "10Gbps", "40Gbps"], c: 2, exp: "Gen 2は最大10Gbps。Gen 1が5Gbpsです。" },
+        { q: "PCの『静音性』を高めるために有効な手段は？", a: ["小型ファンを高速回転させる", "大型ファンを低速回転させる", "電源を切る", "ケースを開けっ放しにする"], c: 1, exp: "大きなファンならゆっくり回しても風量を稼げるため静かになります。" },
+        { q: "『Wi-Fi 6E』が従来の6と違う点は？", a: ["速度が100倍", "6GHz帯の電波が使えるようになった", "電波が1km届く", "Bluetoothが不要"], c: 1, exp: "混雑の少ない新しい周波数帯を使えるため、より安定します。" },
+        { q: "Windowsの『タスクマネージャー』で確認できないものは？", a: ["CPU使用率", "メモリ消費量", "GPUの温度", "室内の温度"], c: 3, exp: "室温を測るセンサーは通常PCパーツには備わっていません。" },
+        { q: "『物理メモリ』が不足してPCが極端に重くなることを何と呼ぶ？", a: ["スラッシング", "スワッピング", "レンダリング", "バッファリング"], c: 0, exp: "仮想メモリへの書き込みが頻発し、処理がストップに近い状態になることです。" },
+        { q: "今後主流となるメモリ規格『DDR5』の主なメリットは？", a: ["低価格化", "さらなる高速化と省電力化", "サイズの大型化", "データの自動消去"], c: 1, exp: "DDR4に比べ、より高い帯域幅と効率的な電力管理を実現しています。" }
+    ]
+};
 
-    function checkPassword() {
-        if (document.getElementById("pass-input").value === CORRECT_PASSWORD) {
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("menu-screen").style.display = "block";
-        } else {
-            alert("パスワードが正しくありません。");
-        }
-    }
+let currentSet = [];
+let currentIndex = 0;
+let score = 0;
+let miss = 0;
 
-    function notReady() { alert("作成中"); }
+function startTest(mode) {
+    currentSet = QUESTIONS[mode];
+    currentIndex = 0;
+    score = 0;
+    miss = 0;
+    document.getElementById('mode-title').innerText = mode;
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('test-card').classList.add('active-card');
+    showQuestion();
+}
 
-    const questions = [
-        { q: "PCの司令塔として、プログラムの命令を解釈し計算や制御を行う主要なパーツは？", a: ["SSD", "CPU", "メモリ", "GPU"], c: 1 },
-        { q: "Copilot+ PCに搭載される、AI処理をデバイス内で完結させるための専用プロセッサは？", a: ["VPU", "APU", "NPU", "MPU"], c: 2 },
-        { q: "電源を切るとデータが消去される、データの一時的な作業領域を何と呼ぶ？", a: ["HDD", "キャッシュ", "ストレージ", "メモリ（RAM）"], c: 3 },
-        { q: "データを長期保存する装置で、HDDに代わり主流となった高速な記憶装置は？", a: ["SSD", "BIOS", "DRAM", "VRAM"], c: 0 },
-        { q: "3Dグラフィックスや動画の描画、並列計算を専門に行うプロセッサは？", a: ["CPU", "GPU", "NPU", "DSP"], c: 1 },
-        { q: "各パーツを接続し、通信の通り道となるPC内部の主要な基盤は？", a: ["拡張カード", "インターフェース", "マザーボード", "電源ユニット"], c: 2 },
-        { q: "コンセントからの交流電流を、PC内部用の直流電流に変換し各部に供給する部品は？", a: ["インバーター", "電源ユニット", "コンデンサ", "バッテリー"], c: 1 },
-        { q: "AI性能を示す「TOPS」という単位は、1秒間に実行可能な何の回数を示す指標か？", a: ["データの転送回数", "電気信号の周期", "数兆回の演算", "画像の描写回数"], c: 2 },
-        { q: "PC内部でCPUやメモリなどの各装置間でデータをやり取りするための伝送路を何と呼ぶ？", a: ["ゲート", "バス（Bus）", "ポート", "スロット"], c: 1 },
-        { q: "USBやHDMIなど、PCと周辺機器を物理的に接続するための規格の総称は？", a: ["ネットワーク", "ドライバ", "インターフェース", "ソケット"], c: 2 },
-        { q: "ハードウェアを制御し、アプリケーションが動作する基盤となる基本ソフト（Windows等）は？", a: ["OS", "BIOS", "ユーティリティ", "ミドルウェア"], c: 0 },
-        { q: "OSが、プリンタやマウスなどの接続されたハードウェアを制御するために必要な専用ソフトは？", a: ["ファームウェア", "デバイスドライバ", "API", "インストーラー"], c: 1 },
-        { q: "PC起動時に最初に動作し、ハードウェアの初期設定と起動順序を管理するプログラムは？", a: ["UEFI (BIOS)", "カーネル", "レジストリ", "シェル"], c: 0 },
-        { q: "コンピュータが扱うデータの最小単位（0または1の状態）を何と呼ぶ？", a: ["バイト", "ビット", "ワード", "ピクセル"], c: 1 },
-        { q: "OSの中核となる部分で、メモリ管理やCPUのプロセス割り当てを直接担当する部分は？", a: ["アプリケーション", "ドライバ", "カーネル", "システムフォルダ"], c: 2 },
-        { q: "ストレージ内で、データをファイルとして適切に管理・整理するための仕組みを何と呼ぶ？", a: ["データベース", "ファイルシステム", "アーカイブ", "インデックス"], c: 1 },
-        { q: "複数のアプリケーションを同時に、または切り替えながら並行して実行できる機能を何と呼ぶ？", a: ["マルチメディア", "マルチタスク", "マルチキャスト", "マルチブート"], c: 1 },
-        { q: "CPUとメインメモリの速度差を埋めるために、CPU内部に配置される非常に高速な記憶域は？", a: ["仮想メモリ", "キャッシュメモリ", "VRAM", "ページファイル"], c: 1 },
-        { q: "ハードウェア内部にあらかじめ書き込まれた、基本的な動作を制御するためのソフトは？", a: ["シェアウェア", "ミドルウェア", "ファームウェア", "プラグイン"], c: 2 },
-        { q: "物理メモリが不足した際、ストレージの一部を作業領域として代用する仕組みは？", a: ["クラウドストレージ", "キャッシュ", "仮想メモリ", "バッファ"], c: 2 }
-    ];
+function showQuestion() {
+    if (currentIndex >= currentSet.length) { showFinal(); return; }
+    document.getElementById('quiz-area').style.display = 'block';
+    document.getElementById('feedback-area').style.display = 'none';
+    
+    const q = currentSet[currentIndex];
+    document.getElementById('progress').innerText = `${currentIndex + 1} / ${currentSet.length}`;
+    document.getElementById('score-val').innerText = score;
+    document.getElementById('miss-val').innerText = miss;
+    document.getElementById('question').innerText = q.q;
 
-    let current = 0; let score = 0; let miss = 0;
+    const opts = document.getElementById('options');
+    opts.innerHTML = '';
+    q.a.forEach((text, i) => {
+        const b = document.createElement('button');
+        b.className = 'btn';
+        b.innerText = text;
+        b.onclick = () => checkAnswer(i);
+        opts.appendChild(b);
+    });
+}
 
-    function startQuiz(lv) {
-        document.getElementById("menu-screen").style.display = "none";
-        document.getElementById("quiz-card").style.display = "flex";
-        document.getElementById("level-title").innerText = lv;
-        display();
-    }
+function checkAnswer(idx) {
+    const q = currentSet[currentIndex];
+    const isCorrect = (idx === q.c);
+    if (isCorrect) score += 5; else miss++;
 
-    function startTimer() {
-        clearInterval(timerInterval);
-        timeLeft = TIME_LIMIT;
-        timerInterval = setInterval(() => {
-            timeLeft -= 0.1;
-            document.getElementById("timer-bar").style.width = (timeLeft / TIME_LIMIT) * 100 + "%";
-            if (timeLeft <= 0) { clearInterval(timerInterval); answer(-1); }
-        }, 100);
-    }
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('feedback-area').style.display = 'block';
+    const title = document.getElementById('feedback-title');
+    title.innerText = isCorrect ? "⭕ CORRECT" : "❌ MISS";
+    title.style.color = isCorrect ? "var(--correct-color)" : "var(--wrong-color)";
+    document.getElementById('explanation-text').innerText = q.exp;
+}
 
-    function display() {
-        if (current >= questions.length) { showResult(); return; }
-        document.getElementById("progress").innerText = `${current + 1} / ${questions.length}`;
-        document.getElementById("question").innerText = questions[current].q;
-        const opts = document.getElementById("options");
-        opts.innerHTML = "";
-        questions[current].a.forEach((choice, i) => {
-            const b = document.createElement("button");
-            b.className = "btn"; b.innerText = choice;
-            b.onclick = () => answer(i);
-            opts.appendChild(b);
-        });
-        startTimer();
-    }
+function toNext() {
+    currentIndex++;
+    showQuestion();
+}
 
-    function answer(idx) {
-        clearInterval(timerInterval);
-        if (idx === questions[current].c) { score += 5; } else { miss++; }
-        document.getElementById("score-val").innerText = score;
-        document.getElementById("wrong-count").innerText = miss;
-        current++;
-        setTimeout(display, 300);
-    }
-
-    function showResult() {
-        const main = document.getElementById("main-content");
-        main.innerHTML = `<h2>テスト完了</h2><p style="font-size: 1.5em; margin: 20px 0;">最終スコア: ${score} 点</p><p style="color:#888;">正解数: ${score/5} / 20</p><button class="btn btn-primary" style="margin-top:30px;" onclick="location.reload()">メニューに戻る</button>`;
-    }
+function showFinal() {
+    document.getElementById('quiz-area').innerHTML = `
+        <h2 style="font-size:2.5rem; margin-bottom:10px;">COMPLETE!</h2>
+        <div style="font-size:4rem; margin:20px 0; color:var(--accent-color); font-weight:bold;">${score} <span style="font-size:1.5rem; color:#94a3b8;">/ 100</span></div>
+        <p style="font-size:1.2rem; color:#94a3b8;">正解数: ${score/5} / ${currentSet.length}</p>
+        <button class="btn" style="width:100%; text-align:center; background:white; color:black; font-weight:bold; margin-top:30px; font-size:1.2rem;" onclick="location.reload()">もう一度挑戦する</button>
+    `;
+    document.getElementById('quiz-area').style.display = 'block';
+    document.getElementById('feedback-area').style.display = 'none';
+}
 </script>
 </body>
 </html>
