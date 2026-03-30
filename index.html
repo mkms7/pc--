@@ -29,7 +29,7 @@
 
         .container { width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; }
 
-    
+        
         #home-screen { text-align: center; animation: fadeIn 0.8s ease-out; }
         .circle-test-btn {
             width: 240px; height: 240px; border-radius: 50%;
@@ -40,7 +40,7 @@
         }
         .circle-test-btn:hover { background: var(--accent-color); color: var(--bg-color); transform: scale(1.05); }
 
-        
+        /* --- メインパネル改良済み --- */
         .app-card {
             display: none; background: var(--card-bg); width: 95%; max-width: 1100px;
             border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
@@ -48,13 +48,13 @@
         }
         .active-card { display: flex !important; }
 
-        .info-panel { background: var(--info-panel-bg); padding: 40px 30px; width: 28%; border-right: 1px solid rgba(255,255,255,0.1); }
+        .info-panel { background: var(--info-panel-bg); padding: 40px 30px; width: 28%; border-right: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; }
         .content-panel { padding: 40px; width: 72%; overflow-y: auto; }
 
-        .label { font-size: 0.7rem; color: #94a3b8; font-weight: bold; letter-spacing: 1px; }
-        .value { font-size: 1.8rem; color: #fff; font-weight: bold; margin-bottom: 25px; }
+        .label { font-size: 0.75rem; color: #94a3b8; font-weight: bold; letter-spacing: 1px; margin-top: 20px; }
+        .value { font-size: 2rem; color: #fff; font-weight: bold; margin-bottom: 10px; }
 
-        .question-text { font-size: 1.25rem; font-weight: bold; line-height: 1.6; margin-bottom: 30px; }
+        .question-text { font-size: 1.3rem; font-weight: bold; line-height: 1.6; margin-bottom: 30px; }
         .options-grid { display: grid; gap: 12px; }
         .btn {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
@@ -71,7 +71,6 @@
 
 <div class="container">
     <div id="home-screen">
-        <h1 style="margin-bottom: 30px; letter-spacing: 2px;">SYSTEM ASSESSMENT</h1>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
             <button class="circle-test-btn" onclick="startTest('初歩')">初歩<br><span style="font-size:0.9rem;">(10問)</span></button>
             <button class="circle-test-btn" onclick="startTest('基礎')">基礎<br><span style="font-size:0.9rem;">(10問)</span></button>
@@ -81,11 +80,10 @@
 
     <div id="test-card" class="app-card">
         <div class="info-panel">
-            <h2 id="mode-title" style="color:var(--accent-color); margin-top:0;">MODE</h2>
+            <h2 id="mode-title" style="color:var(--accent-color); margin-top:0;">TESTING</h2>
             <div class="label">PROGRESS</div><div class="value" id="progress">0 / 0</div>
-            <div class="label">SCORE</div><div class="value" id="score-val">0</div>
-            <div class="label">MISS</div><div class="value" id="miss-val">0</div>
-            <button class="btn" style="width:100%; margin-top:40px; text-align:center; background:#334155;" onclick="location.reload()">メニューに戻る</button>
+            
+            <div style="flex-grow: 1;"></div> <button class="btn" style="width:100%; text-align:center; background:#334155;" onclick="location.reload()">中断して戻る</button>
         </div>
         <div class="content-panel">
             <div id="quiz-area">
@@ -117,7 +115,7 @@ const QUESTIONS = {
     ],
     '基礎': [
         { q: "堅牢性が高く、ビジネスマンに人気の『ThinkPad』はどこのメーカー？", a: ["HP", "Dell", "Lenovo", "Apple"], c: 2, exp: "Lenovoが展開する、キーボードの赤ポチが特徴的なブランドです。" },
-        { q: "国内メーカー（NECや富士通）の主な強みは？", a: ["価格の安さ", "初心者向けサポートの充実", "ゲーム性能", "OS未搭載"], c: 1, exp: "国内大手は電話サポートや独自の便利ソフトが充実しています。" },
+        { q: "国内大手メーカー（NECや富士通）の主な強みは？", a: ["価格の安さ", "初心者向けサポートの充実", "ゲーム性能", "OS未搭載"], c: 1, exp: "国内大手は電話サポートや独自の便利ソフトが充実しています。" },
         { q: "受注生産でパーツをカスタマイズできる販売形態を何と呼ぶ？", a: ["OEM", "BTO", "ASP", "Retail"], c: 1, exp: "BTO (Build To Order) は自分好みのスペックに調整して注文できます。" },
         { q: "最新の『Copilot+ PC』規格で、NPUに求められる性能は？", a: ["10 TOPS以上", "20 TOPS以上", "40 TOPS以上", "100 TOPS以上"], c: 2, exp: "40 TOPS以上のAI演算性能がCopilot+ PCの認定条件です。" },
         { q: "Copilot+ PCで必須とされるメモリの最低容量は？", a: ["8GB", "16GB", "32GB", "64GB"], c: 1, exp: "AIを動かすために、最低16GBのメモリが必須とされています。" },
@@ -128,7 +126,6 @@ const QUESTIONS = {
         { q: "モニターの『リフレッシュレート(Hz)』が表すのは？", a: ["色の鮮やかさ", "1秒間に画面を書き換える回数", "消費電力", "画面の解像度"], c: 1, exp: "数値が高いほど、映像の動きが滑らかに見えます。" }
     ],
     '標準': [
-        
         { q: "M.2 SSDの『2280』という数字、80が表すのは？", a: ["厚さ 8.0mm", "長さ 80mm", "速度 80Gbps", "容量 80GB"], c: 1, exp: "M.2のサイズ規格で、幅22mm・長さ80mmを指します。" },
         { q: "CPUの『TDP』は何を示す指標？", a: ["最大消費電力", "熱設計電力（冷却の目安）", "動作温度の限界", "データ転送速度"], c: 1, exp: "設計上、どれくらいの熱を逃がす必要があるかを示す数値です。" },
         { q: "PCI Express 4.0は3.0に比べて帯域幅はどうなった？", a: ["1.5倍", "2倍", "4倍", "変わらない"], c: 1, exp: "PCIeは世代が上がるごとに帯域幅（速度）が2倍になります。" },
@@ -182,7 +179,7 @@ function startTest(mode) {
     currentIndex = 0;
     score = 0;
     miss = 0;
-    document.getElementById('mode-title').innerText = mode;
+    document.getElementById('mode-title').innerText = mode.toUpperCase();
     document.getElementById('home-screen').style.display = 'none';
     document.getElementById('test-card').classList.add('active-card');
     showQuestion();
@@ -195,8 +192,6 @@ function showQuestion() {
     
     const q = currentSet[currentIndex];
     document.getElementById('progress').innerText = `${currentIndex + 1} / ${currentSet.length}`;
-    document.getElementById('score-val').innerText = score;
-    document.getElementById('miss-val').innerText = miss;
     document.getElementById('question').innerText = q.q;
 
     const opts = document.getElementById('options');
@@ -229,11 +224,17 @@ function toNext() {
 }
 
 function showFinal() {
+    document.getElementById('mode-title').innerText = "RESULTS";
     document.getElementById('quiz-area').innerHTML = `
-        <h2 style="font-size:2.5rem; margin-bottom:10px;">COMPLETE!</h2>
+        <h2 style="font-size:2.5rem; margin-bottom:10px;">TEST COMPLETED</h2>
         <div style="font-size:4rem; margin:20px 0; color:var(--accent-color); font-weight:bold;">${score} <span style="font-size:1.5rem; color:#94a3b8;">/ 100</span></div>
-        <p style="font-size:1.2rem; color:#94a3b8;">正解数: ${score/5} / ${currentSet.length}</p>
-        <button class="btn" style="width:100%; text-align:center; background:white; color:black; font-weight:bold; margin-top:30px; font-size:1.2rem;" onclick="location.reload()">もう一度挑戦する</button>
+        
+        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+            <p style="font-size:1.2rem; margin: 10px 0;">正解数: <span style="color:var(--correct-color); font-weight:bold;">${score/5}</span> / ${currentSet.length}</p>
+            <p style="font-size:1.2rem; margin: 10px 0;">ミス回数: <span style="color:var(--wrong-color); font-weight:bold;">${miss}</span></p>
+        </div>
+
+        <button class="btn" style="width:100%; text-align:center; background:white; color:black; font-weight:bold; font-size:1.2rem;" onclick="location.reload()">ホームに戻る</button>
     `;
     document.getElementById('quiz-area').style.display = 'block';
     document.getElementById('feedback-area').style.display = 'none';
