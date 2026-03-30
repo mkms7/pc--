@@ -10,7 +10,7 @@
             --card-bg: #1e293b;
             --accent-color: #38bdf8;
             --text-color: #f1f5f9;
-            --info-panel-bg: #0c1322; /* 視認性の高い濃いネイビー */
+            --info-panel-bg: #0c1322; 
             --correct-color: #4ade80;
             --wrong-color: #f87171;
         }
@@ -29,7 +29,7 @@
 
         .container { width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; }
 
-        /* --- ホーム画面 --- */
+    
         #home-screen { text-align: center; animation: fadeIn 0.8s ease-out; }
         .circle-test-btn {
             width: 240px; height: 240px; border-radius: 50%;
@@ -40,7 +40,7 @@
         }
         .circle-test-btn:hover { background: var(--accent-color); color: var(--bg-color); transform: scale(1.05); }
 
-        /* --- メインパネル --- */
+        
         .app-card {
             display: none; background: var(--card-bg); width: 95%; max-width: 1100px;
             border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
@@ -128,7 +128,7 @@ const QUESTIONS = {
         { q: "モニターの『リフレッシュレート(Hz)』が表すのは？", a: ["色の鮮やかさ", "1秒間に画面を書き換える回数", "消費電力", "画面の解像度"], c: 1, exp: "数値が高いほど、映像の動きが滑らかに見えます。" }
     ],
     '標準': [
-        /* 標準 40問（構造深掘り） */
+        
         { q: "M.2 SSDの『2280』という数字、80が表すのは？", a: ["厚さ 8.0mm", "長さ 80mm", "速度 80Gbps", "容量 80GB"], c: 1, exp: "M.2のサイズ規格で、幅22mm・長さ80mmを指します。" },
         { q: "CPUの『TDP』は何を示す指標？", a: ["最大消費電力", "熱設計電力（冷却の目安）", "動作温度の限界", "データ転送速度"], c: 1, exp: "設計上、どれくらいの熱を逃がす必要があるかを示す数値です。" },
         { q: "PCI Express 4.0は3.0に比べて帯域幅はどうなった？", a: ["1.5倍", "2倍", "4倍", "変わらない"], c: 1, exp: "PCIeは世代が上がるごとに帯域幅（速度）が2倍になります。" },
